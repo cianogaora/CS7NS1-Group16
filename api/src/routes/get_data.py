@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 import requests
 # import basemodel
 from pydantic import BaseModel
-
-
+from threading import Thread
+import time
 # def a model for the data in the request
 
 
@@ -29,14 +29,20 @@ class Device:
         self.router = APIRouter()
 
         # device id
-        ## device addr
+        # device addr
         self.fib = []
 
         # requester id, device id, sensor id
         self.pit = []
 
-        # (device id, sensor id, sensor value)
+        # (device id, sensor id, sensor value, timestamp)
+
         self.cs = []
+        # dummy data timestamp in datetime format
+        self.cs.append((self.device_id, "sensor1", 1, time.time()))
+        # spawn a thread to clean the cs
+        t = Thread(target=self.clean_cs)
+        t.start()
 
         @self.router.get("/get_data")
         async def get_data(sensor_id, device_id, request: Request) -> SensorData:
@@ -64,10 +70,25 @@ class Device:
                 device = int(entry[1])
                 sensor = entry[2]
                 device_addr = self.fib[device]
-                response = requests.get(device_addr + '/get_data', params={"sensor_id": sensor, "device_id": device})
+                response = requests.get(
+                    device_addr + '/get_data', params={"sensor_id": sensor, "device_id": device})
                 print(response.content)
                 print("exiting the first request in pit")
                 return response.json()
+
+    def clean_cs(self):
+        while True:
+            for i in range(len(self.cs)):
+                if time.time() - self.cs[i][3] > 10:
+                    print(f"deleting {self.cs[i]}")
+                    self.cs.pop(i)
+            # write to file
+            print(f"Writing to file")
+            with open(f"content_store_{self.device_id}.txt", "w") as f:
+                f.write(str(self.cs))
+            time.sleep(5)
+
+
 '''
             if sensor_id in self.sensor_dict:
                 # request from sensor

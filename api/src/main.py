@@ -6,7 +6,7 @@ import uvicorn
 import os
 import argparse
 import json
-
+import random
 
 # define the parser
 parser = argparse.ArgumentParser(description='Run the API')
@@ -26,7 +26,9 @@ if __name__ == "__main__":
     # get the device_dict and sensor_dict
     device_dict = json.load(open(args.device_dict))
     sensor_dict = json.load(open(args.sensor_dict))
-    device = Device("device_id", "address", sensor_dict, device_dict)
+    random_number = random.randint(0, 100)
+    device = Device(f"device_id{random_number}",
+                    "address", sensor_dict, device_dict)
     app.include_router(device.router)
     uvicorn.run(app, host=args.host, port=args.port)
 
