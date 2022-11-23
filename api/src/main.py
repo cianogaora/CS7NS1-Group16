@@ -7,6 +7,7 @@ import os
 import argparse
 import json
 import random
+import controller
 
 # define the parser
 parser = argparse.ArgumentParser(description='Run the API')
@@ -27,11 +28,15 @@ if __name__ == "__main__":
     device_dict = json.load(open(args.device_dict))
     sensor_dict = json.load(open(args.sensor_dict))
     random_number = random.randint(0, 100)
+
+    controller_node = controller.Controller()
+    app.include_router(controller_node.router)
+
     device = Device(f"device_id{random_number}",
                     "address", sensor_dict, device_dict)
     app.include_router(device.router)
     uvicorn.run(app, host=args.host, port=args.port)
-
+    device.join_network("http://localhost:8000")
     # handle keyboard interrupt
     try:
         uvicorn.run(app, host=args.host, port=args.port)

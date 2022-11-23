@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import requests
 # import basemodel
+import controller
 from pydantic import BaseModel
 from threading import Thread
 import time
@@ -75,6 +76,11 @@ class Device:
                 print(response.content)
                 print("exiting the first request in pit")
                 return response.json()
+
+    def join_network(self, controller_addr):
+        r = requests.post(controller_addr, params={"type": "join"})
+        print(r.json())
+
 
     def clean_cs(self):
         while True:
