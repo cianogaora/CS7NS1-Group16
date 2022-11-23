@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, status, Query
+from fastapi import FastAPI, APIRouter, HTTPException, status, Query, Request
 
 import requests
 
@@ -26,17 +26,22 @@ class Controller:
 
         self.app.include_router(self.router)
 
-        self.content_router_dict
+        self.content_router_dict = {}
+
+        self.device_dict = {}
 
         self.router.post("/register/device")
 
-        async def register_device(device: RegisterDevice) -> None:
+        async def register_device(device: RegisterDevice, request: Request) -> None:
             # dummy content router dict
             self.content_router_dict = {"content_router1": {
                 "devices": ["device1", "device2", "device3"], "address": "localhost:8000"},
                 "content_router2": {
                     "devices": ["device4", "device5", "device6"], "address": "localhost:8001"}},
-
+            # get the requester address
+            requester = request.client.host
+            # get the port
+            port = request.client.port
             # find the content router that has the least number of devices
             content_router = min(self.content_router_dict, key=lambda x: len(
                 self.content_router_dict[x]["devices"]))
@@ -44,12 +49,16 @@ class Controller:
             self.content_router_dict[content_router]["devices"].append(
                 device.device_id)
 
-            await self.brodcast_register(content_router)
+            # add device to device table
+            self.device_dict[device.device_id] = {
+                "address": f"{requester}:{port}", "content_router": content_router}
+
+            await self.brodcast_register(content_router, device)
 
             # return 200 OK
             return {"message": "Device registered"}
 
-    def brodcast_register(self, content_router) -> None:
+    def brodcast_register(self, content_router, device) -> None:
         # todo send request to content router
 
         for cs in self.content_router_dict:
@@ -59,6 +68,6 @@ class Controller:
                     f"http://{content_router}/update/pit", json=self.device_dict)
             else:
                 requests.post(
-                    f"http://{content_router}/update/pit", json={"device_id": self.device_id, "content_router": content_router})
+                    f"http://{content_router}/update/pit", json={"device_id": device.device_id, "content_router": content_router})
 
             return 0
