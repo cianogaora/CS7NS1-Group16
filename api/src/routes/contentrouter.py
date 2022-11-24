@@ -5,7 +5,6 @@ import controller
 from pydantic import BaseModel
 from threading import Thread
 import time
-# def a model for the data in the request
 import os
 
 
@@ -32,13 +31,13 @@ class ContentRouter:
         self.address = address
         self.sensor_dict = sensor_dict
         self.device_dict = device_dict
+
+        self.next = []
+        self.before = []
         self.router = APIRouter()
 
         self.load_from_file()
         self.start()
-        # dummy data timestamp in datetime format
-
-        # spawn a thread to clean the cs
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
         async def get_data(device_id: int, sensor_id: int, request: Request) -> SensorData:
@@ -75,14 +74,19 @@ class ContentRouter:
                 return response.json()
 
         @self.router.post("/update/fib")
-        def update_pit(data: UpdateData) -> None:
+        def update_fib(data: UpdateData) -> None:
             # add to fib
             self.fib.append((data.device_id, data.next))
 
             print(f"updating fib for {data.device_id}")
             # print the fib
-            print(self.fib)
+            for before in self.before:
+                url = f"http://{before}/update/fib"
 
+                print(url)
+                r = requests.post(
+                    url, json={"device_id": data.device_id, "next": self.address})
+                print(r.content)
             # return success
             return {"status": "success"}
 
@@ -146,6 +150,10 @@ class ContentRouter:
             print("No pit file found")
             print("Creating new pit")
             self.pit = []
+
+        # load next and before
+        self.before = self.device_dict["before"]
+        self.next = self.device_dict["next"]
 
     def start(self):
         t = Thread(target=self.clean_cs)

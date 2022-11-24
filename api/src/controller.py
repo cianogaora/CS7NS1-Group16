@@ -68,10 +68,6 @@ class Controller:
 
                 requests.post(
                     f"http://{address}/update/fib", json={"device_id": device.device_id, "next": self.device_dict[device.device_id]["address"]})
-            else:
-                print("not same")
-                requests.post(
-                    f"http://{address}/update/fib", json={"device_id": device.device_id, "next": content_router})
 
         return 0
 
@@ -84,3 +80,10 @@ if __name__ == "__main__":
     print("starting controller")
 
     uvicorn.run(app, host="localhost", port=8004)
+
+
+# device1/get_data/temperature
+# device1/get_data/humidity
+
+
+# get_data/device1/temp

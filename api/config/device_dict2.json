@@ -1,3 +1,6 @@
 {
-    "content_router": "http://localhost:8001"
+    "before": [
+        "localhost:8001"
+    ],
+    "next": []
 }
