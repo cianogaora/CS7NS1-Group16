@@ -49,6 +49,9 @@ class ContentRouter:
         t = Thread(target=self.clean_cs)
         t.start()
 
+        t_2 = Thread(target=self.save_to_file)
+        t_2.start()
+
         @self.router.get("/get_data")
         async def get_data(sensor_id, device_id, request: Request) -> SensorData:
             # Check content store
@@ -104,10 +107,48 @@ class ContentRouter:
                     print(f"deleting {self.cs[i]}")
                     self.cs.pop(i)
             # write to file
-            print(f"Writing to file")
+            # print(f"Writing to file")
+            # with open(f"content_store_{self.device_id}.txt", "w") as f:
+            #     f.write(str(self.cs))
+            time.sleep(5)
+
+    def save_to_file(self):
+        while True:
             with open(f"content_store_{self.device_id}.txt", "w") as f:
                 f.write(str(self.cs))
+
+            # same for fib and pit
+
+            with open(f"fib_{self.device_id}.txt", "w") as f:
+                f.write(str(self.fib))
+
+            with open(f"pit_{self.device_id}.txt", "w") as f:
+                f.write(str(self.pit))
+
             time.sleep(5)
+
+    def load_from_file(self):
+        # check if file exists
+        try:
+            with open(f"content_store_{self.device_id}.txt", "r") as f:
+                self.cs = eval(f.read())
+        except FileNotFoundError:
+            print("No content store file found")
+            print("Creating new content store")
+
+        try:
+            with open(f"fib_{self.device_id}.txt", "r") as f:
+                self.fib = eval(f.read())
+        except FileNotFoundError:
+            print("No fib file found")
+            print("Creating new fib")
+
+        try:
+            with open(f"pit_{self.device_id}.txt", "r") as f:
+                self
+        except FileNotFoundError:
+            print("No pit file found")
+            print("Creating new pit")
 
 
 '''
@@ -129,5 +170,5 @@ class ContentRouter:
                 reuest_url, params={"sensor_id": sensor_id, "device_id": device_id})
             # await response.json()
             return response.json()
-            
+
             '''
