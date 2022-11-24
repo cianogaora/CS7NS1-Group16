@@ -18,6 +18,9 @@ parser.add_argument('--device_dict', type=str, help='Path to device_dict')
 parser.add_argument('--sensor_dict', type=str, help='Path to sensor_dict')
 # add argument for device_id
 parser.add_argument('--device_id', type=str, help='Device ID')
+# add argument for controller address
+parser.add_argument('--controller_address', type=str,
+                    help='Controller address')
 
 
 # parse the arguments
@@ -33,9 +36,9 @@ if __name__ == "__main__":
 
     # controller_node = controller.Controller()
     # app.include_router(controller_node.router)
-
+    address = f"{args.host}:{args.port}"
     device = ContentRouter(f"device_id{args.device_id}",
-                           "address", sensor_dict, device_dict)
+                           address, sensor_dict, device_dict, controller_address=args.controller_address)
     app.include_router(device.router)
 
     uvicorn.run(app, host=args.host, port=args.port)

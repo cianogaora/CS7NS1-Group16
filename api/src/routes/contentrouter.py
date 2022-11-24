@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from threading import Thread
 import time
 import os
+from controller import RegisterContentRouter, RegisterDevice
 
 
 class RequestData(BaseModel):
@@ -25,12 +26,17 @@ class UpdateData(BaseModel):
     # temp dict to get the address of the content router from the device id
 
 
+class UpdateBefore(BaseModel):
+    device_address: str
+
+
 class ContentRouter:
-    def __init__(self, device_id, address, sensor_dict, device_dict):
+    def __init__(self, device_id, address, sensor_dict, device_dict, controller_address) -> None:
         self.device_id = device_id
         self.address = address
         self.sensor_dict = sensor_dict
         self.device_dict = device_dict
+        self.controller_address = controller_address
 
         self.next = []
         self.before = []
@@ -38,6 +44,8 @@ class ContentRouter:
 
         self.load_from_file()
         self.start()
+
+        self.pit = []
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
         async def get_data(device_id: int, sensor_id: int, request: Request) -> SensorData:
@@ -72,6 +80,16 @@ class ContentRouter:
                 print(response.content)
                 print("exiting the first request in pit")
                 return response.json()
+
+        @self.router.post("/update/before")
+        def update_before(data: UpdateBefore) -> None:
+            print("update before")
+            # add to before
+            self.before.append(data.device_address)
+
+            print(f"before: {self.before}")
+            #
+            return {"status": "success"}
 
         @self.router.post("/update/fib")
         def update_fib(data: UpdateData) -> None:
@@ -120,6 +138,9 @@ class ContentRouter:
             with open(f"pit_{self.device_id}.txt", "w") as f:
                 f.write(str(self.pit))
 
+            with open(f"before_{self.device_id}.txt", "w") as f:
+                f.write(str(self.before))
+
             time.sleep(5)
 
     def load_from_file(self):
@@ -142,18 +163,24 @@ class ContentRouter:
             print("No fib file found")
             print("Creating new fib")
             self.fib = []
-
+        # try to open before file
         try:
-            with open(f"pit_{self.device_id}.txt", "r") as f:
-                self.pit = eval(f.read())
+            with open(f"before_{self.device_id}.txt", "r") as f:
+                self.before = eval(f.read())
         except FileNotFoundError:
-            print("No pit file found")
-            print("Creating new pit")
-            self.pit = []
+            print("No before file found")
+            print("Creating new before")
+            self.before = []
 
-        # load next and before
-        self.before = self.device_dict["before"]
-        self.next = self.device_dict["next"]
+        # try to open device dict{id}.json
+        try:
+            with open(f"before_{self.device_id}.txt", "r") as f:
+                self.before = eval(f.read())
+        except FileNotFoundError:
+            print("No before file found")
+            print("Creating new before")
+            # register content router
+            self.register_content_router()
 
     def start(self):
         t = Thread(target=self.clean_cs)
@@ -164,25 +191,32 @@ class ContentRouter:
 
         print("starting content router")
 
-
-'''
-            if sensor_id in self.sensor_dict:
-                # request from sensor
-                sensor_address = self.sensor_dict[sensor_id]["address"]
-                response = requests.get(sensor_address + "/get_data")
-                return response.json()
-
+    def register_content_router(self):
+        # register the content router with the controller
+        registration = RegisterContentRouter(
+            content_router_id=self.device_id, address=self.address)
+        r = requests.post(f"http://{self.controller_address}/register/content_router",
+                          json=registration.dict())
+        # check if bad request
+        if r.status_code == 400:
+            # print message
+            print(r.json())
+        else:
+            self.next = r.json()["next"]
+            # send update to next if not []
+            print(f"next is {self.next}")
+            # print own address
+            print(f"address is {self.address}")
+            if self.next == []:
+                print("I am the last content router")
             else:
-                # parse the requet to the content router
-                content_router_address = self.device_dict["content_router"]
-                response = requests.get(
-                    content_router_address + "/get_data", params={"sensor_id": sensor_id, "device_id": device_id})
+                url = f"http://{self.next}/update/before"
+                try:
+                    r = requests.post(
+                        url, json={"device_address": self.address})
 
-            reuest_url = self.device_dict["content_router"] + "/get_data"
-
-            response = requests.get(
-                reuest_url, params={"sensor_id": sensor_id, "device_id": device_id})
-            # await response.json()
-            return response.json()
-
-            '''
+                except requests.exceptions.ConnectionError:
+                    print("Next content router is not ready yet")
+                    time.sleep(5)
+                    r = requests.post(
+                        url, json={"device_address": self.address})

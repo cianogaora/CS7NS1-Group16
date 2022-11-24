@@ -4,3 +4,5 @@
 content_store_*
 fib_device_*
 pit_device_*
+conten_router_dict.json
+before_device_*
