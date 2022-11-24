@@ -6,6 +6,7 @@ import requests
 # import basemodel
 from pydantic import BaseModel
 from typing import List, Union
+import uvicorn
 
 
 class RegisterDevice(BaseModel):
@@ -20,24 +21,19 @@ class Controller:
 
         self.router = APIRouter()
 
-        self.initialise_routes()
-
-        self.app = FastAPI()
-
-        self.app.include_router(self.router)
-
-        self.content_router_dict = {}
+        #self.content_router_dict = {}
 
         self.device_dict = {}
 
-        self.router.post("/register/device")
+        self.content_router_dict = {"content_router1": {
+            "devices": ["device1", "device2", "device3"], "address": "localhost:8001"},
+            "content_router2": {
+            "devices": ["device4", "device5", "device6"], "address": "localhost:8002"}}
 
+        @self.router.post("/register/device")
         async def register_device(device: RegisterDevice, request: Request) -> None:
             # dummy content router dict
-            self.content_router_dict = {"content_router1": {
-                "devices": ["device1", "device2", "device3"], "address": "localhost:8000"},
-                "content_router2": {
-                    "devices": ["device4", "device5", "device6"], "address": "localhost:8001"}},
+
             # get the requester address
             requester = request.client.host
             # get the port
@@ -53,7 +49,7 @@ class Controller:
             self.device_dict[device.device_id] = {
                 "address": f"{requester}:{port}", "content_router": content_router}
 
-            await self.brodcast_register(content_router, device)
+            self.brodcast_register(content_router, device)
 
             # return 200 OK
             return {"message": "Device registered"}
@@ -62,12 +58,24 @@ class Controller:
         # todo send request to content router
 
         for cs in self.content_router_dict:
+            address = self.content_router_dict[cs]["address"]
             # check if the content router is in the dict
             if cs == content_router:
+
                 requests.post(
-                    f"http://{content_router}/update/pit", json=self.device_dict)
+                    f"http://{address}/update/fib", json={"device_id": device.device_id, "next": self.device_dict[device.device_id]["address"]})
             else:
                 requests.post(
-                    f"http://{content_router}/update/pit", json={"device_id": device.device_id, "content_router": content_router})
+                    f"http://{address}/update/fib", json={"device_id": device.device_id, "next": content_router})
 
-            return 0
+        return 0
+
+
+if __name__ == "__main__":
+    controller = Controller()
+    app = FastAPI()
+    app.include_router(controller.router)
+
+    print("starting controller")
+
+    uvicorn.run(app, host="localhost", port=8004)

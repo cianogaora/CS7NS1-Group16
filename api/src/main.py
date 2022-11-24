@@ -1,5 +1,5 @@
 
-from routes.get_data import Device
+from routes.contentrouter import ContentRouter
 import fastapi
 # imort argparse
 import uvicorn
@@ -29,11 +29,11 @@ if __name__ == "__main__":
     sensor_dict = json.load(open(args.sensor_dict))
     random_number = random.randint(0, 100)
 
-    controller_node = controller.Controller()
-    app.include_router(controller_node.router)
+    # controller_node = controller.Controller()
+    # app.include_router(controller_node.router)
 
-    device = Device(f"device_id{random_number}",
-                    "address", sensor_dict, device_dict)
+    device = ContentRouter(f"device_id{random_number}",
+                           "address", sensor_dict, device_dict)
     app.include_router(device.router)
     uvicorn.run(app, host=args.host, port=args.port)
     device.join_network("http://localhost:8000")

@@ -1,1 +1,4 @@
 .idea
+
+# exlude everything containing content_store_
+content_store_*

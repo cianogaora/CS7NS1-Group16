@@ -8,4 +8,4 @@ python3 src/main.py --host localhost --port 8001 --device_dict config/device_dic
 
 python3 src/main.py --host localhost --port 8002 --device_dict config/device_dict2.json --sensor_dict config/sensor_dict_2.json &
 
-
+python3 src/controller.py &
