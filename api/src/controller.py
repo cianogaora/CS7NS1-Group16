@@ -46,14 +46,8 @@ class Controller:
             print(self.content_router_dict)
 
             # get the content router with the least devices in its device list
-            max_devices = -1  # set to -1 so that the first content router will always be selected
-            # set to the first content router in the dict
-            content_router = list(self.content_router_dict.keys())[0]
-            for cs in self.content_router_dict:
-                print(self.content_router_dict[cs]["devices"])
-                if len(self.content_router_dict[cs]["devices"]) > max_devices:
-                    max_devices = len(self.content_router_dict[cs]["devices"])
-                    content_router = cs
+            content_router = min(self.content_router_dict, key=lambda x: len(
+                self.content_router_dict[x]["devices"]))
 
             # add the device to the content router
             self.content_router_dict[content_router]["devices"].append(

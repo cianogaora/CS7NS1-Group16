@@ -31,11 +31,9 @@ class UpdateBefore(BaseModel):
 
 
 class ContentRouter:
-    def __init__(self, device_id, address, sensor_dict, device_dict, controller_address) -> None:
+    def __init__(self, device_id, address, controller_address) -> None:
         self.device_id = device_id
         self.address = address
-        self.sensor_dict = sensor_dict
-        self.device_dict = device_dict
         self.controller_address = controller_address
 
         self.next = []
