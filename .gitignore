@@ -2,3 +2,5 @@
 
 # exlude everything containing content_store_
 content_store_*
+fib_device_*
+pit_device_*

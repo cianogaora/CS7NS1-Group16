@@ -49,6 +49,8 @@ class Controller:
             self.device_dict[device.device_id] = {
                 "address": f"{requester}:{port}", "content_router": content_router}
 
+            print(self.device_dict)
+
             self.brodcast_register(content_router, device)
 
             # return 200 OK
@@ -62,9 +64,12 @@ class Controller:
             # check if the content router is in the dict
             if cs == content_router:
 
+                print("same")
+
                 requests.post(
                     f"http://{address}/update/fib", json={"device_id": device.device_id, "next": self.device_dict[device.device_id]["address"]})
             else:
+                print("not same")
                 requests.post(
                     f"http://{address}/update/fib", json={"device_id": device.device_id, "next": content_router})
 

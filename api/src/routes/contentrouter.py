@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from threading import Thread
 import time
 # def a model for the data in the request
+import os
 
 
 class RequestData(BaseModel):
@@ -33,24 +34,11 @@ class ContentRouter:
         self.device_dict = device_dict
         self.router = APIRouter()
 
-        # device id
-        # device addr
-        self.fib = []
-
-        # requester id, device id, sensor id
-        self.pit = []
-
-        # (device id, sensor id, sensor value, timestamp)
-
-        self.cs = []
+        self.load_from_file()
+        self.start()
         # dummy data timestamp in datetime format
-        self.cs.append((self.device_id, "sensor1", 1, time.time()))
-        # spawn a thread to clean the cs
-        t = Thread(target=self.clean_cs)
-        t.start()
 
-        t_2 = Thread(target=self.save_to_file)
-        t_2.start()
+        # spawn a thread to clean the cs
 
         @self.router.get("/get_data")
         async def get_data(sensor_id, device_id, request: Request) -> SensorData:
@@ -103,13 +91,14 @@ class ContentRouter:
     def clean_cs(self):
         while True:
             for i in range(len(self.cs)):
-                if time.time() - self.cs[i][3] > 10:
-                    print(f"deleting {self.cs[i]}")
-                    self.cs.pop(i)
-            # write to file
-            # print(f"Writing to file")
-            # with open(f"content_store_{self.device_id}.txt", "w") as f:
-            #     f.write(str(self.cs))
+                # check the timestamp of the entry
+                try:
+                    if time.time() - self.cs[i][3] > 10:
+                        # remove the entry
+                        print("removing entry")
+                        self.cs.pop(i)
+                except IndexError:
+                    pass
             time.sleep(5)
 
     def save_to_file(self):
@@ -131,10 +120,14 @@ class ContentRouter:
         # check if file exists
         try:
             with open(f"content_store_{self.device_id}.txt", "r") as f:
-                self.cs = eval(f.read())
+                self.cs = list(eval(f.read()))
+                # appen dummy data
+                self.cs.append((self.device_id, "sensor_1", 10, time.time()))
         except FileNotFoundError:
             print("No content store file found")
             print("Creating new content store")
+            self.cs = []
+            self.cs.append((self.device_id, "sensor_1", 10, time.time()))
 
         try:
             with open(f"fib_{self.device_id}.txt", "r") as f:
@@ -142,13 +135,24 @@ class ContentRouter:
         except FileNotFoundError:
             print("No fib file found")
             print("Creating new fib")
+            self.fib = []
 
         try:
             with open(f"pit_{self.device_id}.txt", "r") as f:
-                self
+                self.pit = eval(f.read())
         except FileNotFoundError:
             print("No pit file found")
             print("Creating new pit")
+            self.pit = []
+
+    def start(self):
+        t = Thread(target=self.clean_cs)
+        t.start()
+
+        t_2 = Thread(target=self.save_to_file)
+        t_2.start()
+
+        print("starting content router")
 
 
 '''
