@@ -40,9 +40,11 @@ class ContentRouter:
 
         # spawn a thread to clean the cs
 
-        @self.router.get("/get_data")
-        async def get_data(sensor_id, device_id, request: Request) -> SensorData:
-            # Check content store
+        @self.router.get("/get_data/{device_id}/{sensor_id}")
+        async def get_data(device_id: int, sensor_id: int, request: Request) -> SensorData:
+
+            print(f"get_data request from {device_id} for {sensor_id}")
+
             for entry in self.cs:
                 if all(x in entry for x in [device_id, sensor_id]):
                     data = entry[2]
