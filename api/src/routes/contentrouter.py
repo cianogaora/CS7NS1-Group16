@@ -63,7 +63,7 @@ class ContentRouter:
                     req_in_pit = True
 
             if not req_in_pit:
-                self.pit.append((requester, device_id, sensor_id))
+                self.pit.append((requester, device_id, sensor_id, time.time()))
 
             # Check FIB
             for entry in self.fib:
@@ -72,6 +72,10 @@ class ContentRouter:
                     print("sending request to next")
                     r = requests.get(
                         f"{entry[1]}/get_data/{device_id}/{sensor_id}")
+
+                    #  save to cs
+                    self.cs.append(
+                        (device_id, sensor_id, r.json()["data"], time.time()))
                     return r.json()
             # Check PIT for unfulfilled requests
             for entry in self.pit:
@@ -89,7 +93,7 @@ class ContentRouter:
                 print("exiting the first request in pit")
                 return response.json()
 
-        @ self.router.post("/update/before")
+        @self.router.post("/update/before")
         def update_before(data: UpdateBefore) -> None:
             print("update before")
             # add to before
@@ -126,6 +130,23 @@ class ContentRouter:
                     url, json={"device_id": data.device_id, "next": self.address})
                 print(r.content)
             # return success
+            return {"status": "success"}
+
+        @self.router.post("/register/content_router")
+        def register_content_router(registration_dict: RegisterContentRouter) -> None:
+            # proxied request forwards the request to the controller node
+            print("registering content router")
+            r = requests.post(f"http://{self.controller_address}/register/content_router",
+                              json=registration_dict)
+            return {"status": "success"}
+
+        @self.router.post("/register/device")
+        def register_device(data: RegisterDevice) -> None:
+            # proxied request forwards the request to the controller node
+            print("registering device")
+            r = requests.post(
+                f"http://{self.controller_address}/register/device", json=data.dict())
+            print(r.content)
             return {"status": "success"}
 
     def join_network(self, controller_addr):
