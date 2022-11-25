@@ -7,6 +7,7 @@ import uvicorn
 from threading import Thread
 import json
 import time
+import argparse
 
 import logging
 # set up logging to info
@@ -129,6 +130,14 @@ class Controller:
 
 
 if __name__ == "__main__":
+    # define the parser
+    parser = argparse.ArgumentParser(
+        description="Controller for the content router")
+
+    # add arguments for host and port
+    parser.add_argument("--host", type=str, default="localhost")
+    parser.add_argument("--port", type=int, default=8004)
+
     controller = Controller()
     app = FastAPI()
     app.include_router(controller.router)
@@ -136,7 +145,8 @@ if __name__ == "__main__":
     print("starting controller")
 
     try:
-        uvicorn.run(app, host="localhost", port=8004)
+        uvicorn.run(app, host=parser.parse_args().host,
+                    port=parser.parse_args().port)
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         exit(0)
