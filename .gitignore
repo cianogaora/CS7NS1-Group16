@@ -6,3 +6,4 @@ fib_device_*
 pit_device_*
 content_router_dict.json
 before_device_*
+next_device_*

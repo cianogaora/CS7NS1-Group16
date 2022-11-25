@@ -46,7 +46,7 @@ class ContentRouter:
         self.pit = []
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
-        async def get_data(device_id: int, sensor_id: int, request: Request) -> SensorData:
+        async def get_data(device_id: str, sensor_id: str, request: Request) -> SensorData:
 
             print(f"get_data request from {device_id} for {sensor_id}")
 
@@ -65,7 +65,14 @@ class ContentRouter:
             if not req_in_pit:
                 self.pit.append((requester, device_id, sensor_id))
 
-            self.fib = ["http://localhost:8000"]
+            # Check FIB
+            for entry in self.fib:
+                if entry[0] == device_id:
+                    # send request to next
+                    print("sending request to next")
+                    r = requests.get(
+                        f"{entry[1]}/get_data/{device_id}/{sensor_id}")
+                    return r.json()
             # Check PIT for unfulfilled requests
             for entry in self.pit:
                 print(f"getting data for entry {entry}")
@@ -73,13 +80,16 @@ class ContentRouter:
                 device = int(entry[1])
                 sensor = entry[2]
                 device_addr = self.fib[device]
+                # check if addr contains http
+                if "http" not in device_addr:
+                    device_addr = "http://" + device_addr
                 response = requests.get(
-                    device_addr + '/get_data', params={"sensor_id": sensor, "device_id": device})
+                    f"{device_addr}/get_data/{device}/{sensor}")
                 print(response.content)
                 print("exiting the first request in pit")
                 return response.json()
 
-        @self.router.post("/update/before")
+        @ self.router.post("/update/before")
         def update_before(data: UpdateBefore) -> None:
             print("update before")
             # add to before
@@ -89,15 +99,27 @@ class ContentRouter:
             #
             return {"status": "success"}
 
-        @self.router.post("/update/fib")
+        @ self.router.post("/update/fib")
         def update_fib(data: UpdateData) -> None:
-            # add to fib
+            # check if if device is in fib
+            for entry in self.fib:
+                if entry[0] == data.device_id:
+                    return {"status": "already in fib"}
+
             self.fib.append((data.device_id, data.next))
 
             print(f"updating fib for {data.device_id}")
             # print the fib
             for before in self.before:
                 url = f"http://{before}/update/fib"
+
+                print(url)
+                r = requests.post(
+                    url, json={"device_id": data.device_id, "next": self.address})
+                print(r.content)
+            # same for next
+            for next in self.next:
+                url = f"http://{next}/update/fib"
 
                 print(url)
                 r = requests.post(
@@ -139,6 +161,9 @@ class ContentRouter:
             with open(f"before_{self.device_id}.txt", "w") as f:
                 f.write(str(self.before))
 
+            with open(f"next_{self.device_id}.txt", "w") as f:
+                f.write(str(self.next))
+
             time.sleep(5)
 
     def load_from_file(self):
@@ -169,7 +194,14 @@ class ContentRouter:
             print("No before file found")
             print("Creating new before")
             self.before = []
-
+        # same for next
+        try:
+            with open(f"next_{self.device_id}.txt", "r") as f:
+                self.next = eval(f.read())
+        except FileNotFoundError:
+            print("No next file found")
+            print("Creating new next")
+            self.next = []
         # try to open device dict{id}.json
         try:
             with open(f"before_{self.device_id}.txt", "r") as f:
@@ -200,15 +232,18 @@ class ContentRouter:
             # print message
             print(r.json())
         else:
-            self.next = r.json()["next"]
+
             # send update to next if not []
-            print(f"next is {self.next}")
-            # print own address
-            print(f"address is {self.address}")
-            if self.next == []:
+
+            if r.json()["next"] == None:
                 print("I am the last content router")
             else:
-                url = f"http://{self.next}/update/before"
+                self.next.append(r.json()["next"])
+                print(f"next is {self.next}")
+                # print own address
+                print(f"address is {self.address}")
+
+                url = f"http://{self.next[-1]}/update/before"
                 try:
                     r = requests.post(
                         url, json={"device_address": self.address})

@@ -75,7 +75,7 @@ class Controller:
                     f"Content router {content_router.content_router_id} registered")
 
                 # return 200 OK
-                return {"message": "Content router registered", "next": []}
+                return {"message": "Content router registered", "next": None}
 
             # find the content router that has the highest number of devices
             next_ = max(self.content_router_dict, key=lambda x: len(
@@ -99,6 +99,8 @@ class Controller:
 
         for cs in self.content_router_dict:
             address = self.content_router_dict[cs]["address"]
+            # add http:// to address
+            # change device
             # check if the content router is in the dict
             if cs == content_router:
 
