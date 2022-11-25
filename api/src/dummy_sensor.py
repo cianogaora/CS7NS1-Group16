@@ -15,8 +15,8 @@ class SensorData(BaseModel):
     timestamp: str
 
 
-@app.get("/get_data")
-async def get_data() -> SensorData:
+@app.get("/get_data/{device_id}/{sensor_id}")
+async def get_data(device_id: str, sensor_id: str) -> SensorData:
     # generate a random number
     data = random.randint(0, 100)
     timestamp = time.strftime("%H:%M:%S", time.localtime())

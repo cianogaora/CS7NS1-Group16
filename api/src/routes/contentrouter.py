@@ -53,7 +53,7 @@ class ContentRouter:
             for entry in self.cs:
                 if all(x in entry for x in [device_id, sensor_id]):
                     data = entry[2]
-                    return SensorData(data)
+                    return data
 
             # Check/Add to PIT
             requester = request.client.host
@@ -70,12 +70,16 @@ class ContentRouter:
                 if entry[0] == device_id:
                     # send request to next
                     print("sending request to next")
+                    address = entry[1]
+                    # add http:// if not present
+                    if not address.startswith("http://"):
+                        address = "http://" + address
                     r = requests.get(
-                        f"{entry[1]}/get_data/{device_id}/{sensor_id}")
+                        f"{address}/get_data/{device_id}/{sensor_id}")
 
                     #  save to cs
                     self.cs.append(
-                        (device_id, sensor_id, r.json()["data"], time.time()))
+                        (device_id, sensor_id, SensorData(**r.json()), time.time()))
                     return r.json()
             # Check PIT for unfulfilled requests
             for entry in self.pit:
@@ -192,8 +196,7 @@ class ContentRouter:
         try:
             with open(f"content_store_{self.device_id}.txt", "r") as f:
                 self.cs = list(eval(f.read()))
-                # appen dummy data
-                self.cs.append((self.device_id, "sensor_1", 10, time.time()))
+
         except FileNotFoundError:
             print("No content store file found")
             print("Creating new content store")
