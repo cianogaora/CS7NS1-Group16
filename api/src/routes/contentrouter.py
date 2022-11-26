@@ -8,11 +8,13 @@ import time
 import os
 from typing import List, Union
 
+
 class RegisterDevice(BaseModel):
     device_id: str
     sensor_ids: List[str]
     sensor_address: str
     device_address: str
+
 
 class RegisterSubscriber(BaseModel):
     type: str
@@ -64,9 +66,10 @@ class ContentRouter:
         # spawn a thread to clean the cs
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
-        async def get_data(device_id: str, sensor_id: str, port: int, request: Request) -> SensorData:
+        async def get_data(device_id: str, sensor_id: str, request: Request,  port: int = None) -> SensorData:
 
-            print(f"get_data request from device {device_id} for sensor {sensor_id}")
+            print(
+                f"get_data request from device {device_id} for sensor {sensor_id}")
 
             for entry in self.cs:
                 if all(x in entry for x in [device_id, sensor_id]):
@@ -82,7 +85,8 @@ class ContentRouter:
                     req_in_pit = True
 
             if not req_in_pit:
-                self.pit.append((requester, port, device_id, sensor_id, time.time()))
+                self.pit.append(
+                    (requester, port, device_id, sensor_id, time.time()))
 
             # Check FIB
             for entry in self.fib:
@@ -127,7 +131,8 @@ class ContentRouter:
                 data = SensorData(**r[2])
 
                 print(data)
-                requests.post(url=f'http://{addr}:{r[1]}/response', data=data.json())
+                requests.post(
+                    url=f'http://{addr}:{r[1]}/response', data=data.json())
 
             return {"msg": "sent data"}
 
