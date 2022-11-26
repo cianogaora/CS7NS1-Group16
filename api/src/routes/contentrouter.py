@@ -88,37 +88,34 @@ class ContentRouter:
                 self.pit.append(
                     (requester, port, device_id, sensor_id, time.time()))
 
-            # Check FIB
-            for entry in self.fib:
-                if entry[0] == device_id:
-                    # send request to next
-                    print("sending request to next")
-                    address = entry[1]
-                    # add http:// if not present
-                    if not address.startswith("http://"):
-                        address = "http://" + address
-                    r = requests.get(
-                        f"{address}/get_data/{device_id}/{sensor_id}")
-
-                    #  save to cs
-                    self.cs.append(
-                        (device_id, sensor_id, SensorData(**r.json()), time.time()))
-                    return r.json()
             # Check PIT for unfulfilled requests
             responses = []
             for entry in self.pit:
                 print(f"getting data for entry {entry}")
+
                 src = entry[0]
                 entry_port = entry[1]
                 device = entry[2]
                 sensor = int(entry[3])
                 timestamp = entry[4]
-                device_addr = self.fib[int(device)]
+                device_addr = ""
+                for d in self.fib:
+                    if str(d[0]) == str(entry[2]):
+                        device_addr = d[1]
+                if device_addr == "":
+                    print("device not in fib")
+                    return HTTPException(status_code=404, detail="device not in fib")
+
                 # check if addr contains http
                 if "http" not in device_addr:
                     device_addr = "http://" + device_addr
+
                 response = requests.get(
-                    f"{device_addr}/get_data/{device}/{sensor}")
+                    f"{device_addr}/get_data/{device}/{sensor}?port={entry_port}")
+                # check if bad response
+                if response.status_code != 200:
+                    print("bad response")
+                    return HTTPException(status_code=404, detail="bad response")
                 print(response.json())
                 print(f"processing entry {entry} in pit")
                 responses.append((src, entry_port, response.json()))
@@ -134,9 +131,7 @@ class ContentRouter:
                 requests.post(
                     url=f'http://{addr}:{r[1]}/response', data=data.json())
 
-            return {"msg": "sent data"}
-
-            # return response.json()
+            return {"response": "request sent"}
 
         @self.router.post("/update/before")
         def update_before(data: UpdateBefore) -> None:
