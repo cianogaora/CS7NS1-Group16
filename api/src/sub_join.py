@@ -6,6 +6,7 @@ from routes.contentrouter import RequestData
 import time
 import threading
 
+
 def join(sub1):
     time.sleep(5)
     sub1.join_network("http://localhost:8004")
@@ -26,4 +27,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         exit(0)
-
