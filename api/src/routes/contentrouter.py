@@ -145,7 +145,7 @@ class ContentRouter:
 
         @self.router.post("/update/fib")
         def update_fib(data: UpdateData) -> None:
-            # check if if device is in fib
+            # check if device is in fib
             for entry in self.fib:
                 if entry[0] == data.device_id:
                     return {"status": "already in fib"}
