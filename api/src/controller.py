@@ -14,20 +14,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
-class RegisterDevice(BaseModel):
-    device_id: str
-    sensor_ids: List[str]
-    sensor_address: str
-    device_address: str
-
-class RegisterSubscriber(BaseModel):
-    type: str
-    sub_id: str
-
-
-class RegisterContentRouter(BaseModel):
-    content_router_id: str
-    address: str
+from routes.contentrouter import RegisterSubscriber, RegisterDevice, RegisterContentRouter
 
 
 class Controller:

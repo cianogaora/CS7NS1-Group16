@@ -6,7 +6,22 @@ from pydantic import BaseModel
 from threading import Thread
 import time
 import os
-from controller import RegisterContentRouter, RegisterDevice
+from typing import List, Union
+
+class RegisterDevice(BaseModel):
+    device_id: str
+    sensor_ids: List[str]
+    sensor_address: str
+    device_address: str
+
+class RegisterSubscriber(BaseModel):
+    type: str
+    sub_id: str
+
+
+class RegisterContentRouter(BaseModel):
+    content_router_id: str
+    address: str
 
 
 class RequestData(BaseModel):
@@ -51,7 +66,7 @@ class ContentRouter:
         @self.router.get("/get_data/{device_id}/{sensor_id}")
         async def get_data(device_id: str, sensor_id: str, port: int, request: Request) -> SensorData:
 
-            print(f"get_data request from {device_id} for {sensor_id}")
+            print(f"get_data request from device {device_id} for sensor {sensor_id}")
 
             for entry in self.cs:
                 if all(x in entry for x in [device_id, sensor_id]):
@@ -128,7 +143,7 @@ class ContentRouter:
             #
             return {"status": "success"}
 
-        @ self.router.post("/update/fib")
+        @self.router.post("/update/fib")
         def update_fib(data: UpdateData) -> None:
             # check if if device is in fib
             for entry in self.fib:

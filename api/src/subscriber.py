@@ -20,7 +20,7 @@ class Subscriber:
         r = requests.get(controller_addr + '/register/subscriber')
         cr = r.content.decode().strip('\"')
         self.assigned_cr = cr
-        # print(self.assigned_cr)
+        print(f"subcriber {self.id} assigned to content router {self.assigned_cr}")
 
     def request_data(self, device_id, sensor_id):
         r = requests.get(f'http://{self.assigned_cr}/get_data/{device_id}/{sensor_id}?port={self.port}')
