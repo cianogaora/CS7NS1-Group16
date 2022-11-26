@@ -20,6 +20,10 @@ class RegisterDevice(BaseModel):
     sensor_address: str
     device_address: str
 
+class RegisterSubscriber(BaseModel):
+    type: str
+    sub_id: str
+
 
 class RegisterContentRouter(BaseModel):
     content_router_id: str
@@ -94,6 +98,13 @@ class Controller:
             logging.info(f"content router dict: {self.content_router_dict}")
             # return 200 OK
             return {"message": "Content router registered", "next": next_address}
+
+        @self.router.get("/register/subscriber")
+        async def register_sub():
+            content_router = min(self.content_router_dict, key=lambda x: len(
+                self.content_router_dict[x]["devices"]))
+            return self.content_router_dict[content_router]["address"]
+
 
     def brodcast_register(self, content_router, device) -> None:
         # todo send request to content router

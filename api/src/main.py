@@ -1,5 +1,5 @@
-
 from routes.contentrouter import ContentRouter
+from routes.contentrouter import SensorData
 import fastapi
 # imort argparse
 import uvicorn
@@ -8,6 +8,7 @@ import argparse
 import json
 import random
 import controller
+import subscriber
 
 # define the parser
 parser = argparse.ArgumentParser(description='Run the API')
@@ -19,10 +20,8 @@ parser.add_argument('--device_id', type=str, help='Device ID')
 parser.add_argument('--controller_address', type=str,
                     help='Controller address')
 
-
 # parse the arguments
 args = parser.parse_args()
-
 
 if __name__ == "__main__":
     app = fastapi.FastAPI()
@@ -37,11 +36,13 @@ if __name__ == "__main__":
                            address, controller_address=args.controller_address)
     app.include_router(device.router)
 
-    uvicorn.run(app, host=args.host, port=args.port)
-    device.join_network("http://localhost:8000")
+    # uvicorn.run(app, host=args.host, port=args.port)
+
     # handle keyboard interrupt
     try:
-        uvicorn.run(app, host=args.host, port=args.port, n_jobs=1)
+        uvicorn.run(app, host=args.host, port=args.port)
     except KeyboardInterrupt:
         print("Keyboard interrupt")
         exit(0)
+    # device.join_network("http://localhost:8000")
+

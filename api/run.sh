@@ -12,4 +12,6 @@ python3 src/main.py --host localhost --port 8001  --device_id 1 --controller_add
 
 python3 src/main.py --host localhost --port 8002  --device_id 2 --controller_address localhost:8004 &
 
+python3 src/sub_join.py
+
 

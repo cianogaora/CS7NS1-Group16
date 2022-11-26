@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 import requests
 # import basemodel
-import controller
+
 from pydantic import BaseModel
 from threading import Thread
 import time
@@ -39,14 +39,17 @@ class ContentRouter:
         self.next = []
         self.before = []
         self.router = APIRouter()
-
+        self.pit = []
+        self.fib = []
+        # device_id sensor_id sensor_data timestamp
+        self.cs = []
         self.load_from_file()
         self.start()
 
-        self.pit = []
+        # spawn a thread to clean the cs
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
-        async def get_data(device_id: str, sensor_id: str, request: Request) -> SensorData:
+        async def get_data(device_id: str, sensor_id: str, port: int, request: Request) -> SensorData:
 
             print(f"get_data request from {device_id} for {sensor_id}")
 
@@ -57,13 +60,14 @@ class ContentRouter:
 
             # Check/Add to PIT
             requester = request.client.host
+            print(f"requester: {requester} port {port}")
             req_in_pit = False
             for entry in self.pit:
                 if all(x in entry for x in [requester, device_id, sensor_id]):
                     req_in_pit = True
 
             if not req_in_pit:
-                self.pit.append((requester, device_id, sensor_id, time.time()))
+                self.pit.append((requester, port, device_id, sensor_id, time.time()))
 
             # Check FIB
             for entry in self.fib:
@@ -82,20 +86,37 @@ class ContentRouter:
                         (device_id, sensor_id, SensorData(**r.json()), time.time()))
                     return r.json()
             # Check PIT for unfulfilled requests
+            responses = []
             for entry in self.pit:
                 print(f"getting data for entry {entry}")
                 src = entry[0]
-                device = int(entry[1])
-                sensor = entry[2]
-                device_addr = self.fib[device]
+                entry_port = entry[1]
+                device = entry[2]
+                sensor = int(entry[3])
+                timestamp = entry[4]
+                device_addr = self.fib[int(device)]
                 # check if addr contains http
                 if "http" not in device_addr:
                     device_addr = "http://" + device_addr
                 response = requests.get(
                     f"{device_addr}/get_data/{device}/{sensor}")
-                print(response.content)
-                print("exiting the first request in pit")
-                return response.json()
+                print(response.json())
+                print(f"processing entry {entry} in pit")
+                responses.append((src, entry_port, response.json()))
+
+            for r in responses:
+                addr = r[0]
+                if r[0] == "::1":
+                    addr = "localhost"
+                print(f"sending response {r[2]} to {addr}")
+                data = SensorData(**r[2])
+
+                print(data)
+                requests.post(url=f'http://{addr}:{r[1]}/response', data=data.json())
+
+            return {"msg": "sent data"}
+
+            # return response.json()
 
         @self.router.post("/update/before")
         def update_before(data: UpdateBefore) -> None:
