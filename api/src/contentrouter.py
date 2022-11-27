@@ -171,7 +171,7 @@ class ContentRouter:
             for entry in self.fib:
                 if entry[0] == data.device_id:
                     return {"status": "already in fib"}
-
+            print(data)
             self.fib.append((data.device_id, data.next))
 
             print(f"updating fib for {data.device_id}")

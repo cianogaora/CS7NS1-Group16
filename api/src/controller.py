@@ -8,6 +8,7 @@ import time
 import argparse
 
 import logging
+
 # set up logging to info
 logging.basicConfig(level=logging.INFO)
 
@@ -35,8 +36,11 @@ class Controller:
             print(self.content_router_dict)
 
             # get the content router with the least devices in its device list
-            content_router = min(self.content_router_dict, key=lambda x: len(
-                self.content_router_dict[x]["devices"]))
+            try:
+                content_router = min(self.content_router_dict, key=lambda x: len(
+                    self.content_router_dict[x]["devices"]))
+            except ValueError:
+                content_router = self.content_router_dict[0]
 
             # add the device to the content router
             self.content_router_dict[content_router]["devices"].append(
@@ -47,7 +51,7 @@ class Controller:
             # # return 200 OK
             return {"message": "Device registered"}
 
-        @ self.router.post("/register/content_router")
+        @self.router.post("/register/content_router")
         async def register_content_router(content_router: RegisterContentRouter, request: Request) -> None:
 
             # check if the content router is already in the dict
@@ -89,7 +93,6 @@ class Controller:
                 self.content_router_dict[x]["devices"]))
             return self.content_router_dict[content_router]["address"]
 
-
     def brodcast_register(self, content_router, device) -> None:
         # todo send request to content router
 
@@ -99,9 +102,8 @@ class Controller:
             # change device
             # check if the content router is in the dict
             if cs == content_router:
-
                 print("same")
-
+                print(f"posting request http://{address}/update/fib with data {device.device_address}")
                 requests.post(
                     f"http://{address}/update/fib", json={"device_id": device.device_id, "next": device.device_address})
 

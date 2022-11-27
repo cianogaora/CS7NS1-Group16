@@ -138,7 +138,7 @@ class Speed():
     def __init__(self):
         self.spd = None
         self.sensor_name = 'Speed'
-        self.speed = (random.uniform(6, 8))
+        self.speed = (random.uniform(6000, 8000))
         self.speed = float(format(self.speed, '.3f'))
         # self.final_spd = {}
 
@@ -150,12 +150,12 @@ class Speed():
     def change_speed(self):
         speed_change = self.generate_decimal(-1, 1, 3)
         while True:
-            if 6 <= self.speed + speed_change <= 8:
+            if 6000 <= self.speed + speed_change <= 8000:
                 self.speed = speed_change + self.speed
-            elif self.speed < 6:
-                self.speed += 0.5
-            elif self.speed > 8:
-                self.speed -= 0.5
+            elif self.speed < 6000:
+                self.speed += 100
+            elif self.speed > 8000:
+                self.speed -= 100
             # self.final_spd.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"speed":self.speed}})
             time.sleep(5)
 
