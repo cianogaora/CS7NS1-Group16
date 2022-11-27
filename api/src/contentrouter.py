@@ -15,8 +15,8 @@ from typing import List, Union
 
 class RegisterDevice(BaseModel):
     device_id: str
-    sensor_ids: List[str]
-    sensor_address: str
+    sensor_ids: List[str] = None
+    sensor_address: str = None
     device_address: str
 
 
@@ -337,20 +337,21 @@ class ContentRouter:
                         url, json={"device_address": self.address})
 
 
-parser = argparse.ArgumentParser(description='Run the API')
-parser.add_argument('--host', type=str, help='Host to run the API on')
-parser.add_argument('--port', type=int, help='Port to run the API on')
-# add argument for device_id
-parser.add_argument('--device_id', type=str, help='Device ID')
-# add argument for controller address
-parser.add_argument('--controller_address', type=str,
-                    help='Controller address')
-
-# parse the arguments
-args = parser.parse_args()
 
 if __name__ == "__main__":
     app = fastapi.FastAPI()
+
+    parser = argparse.ArgumentParser(description='Run the API')
+    parser.add_argument('--host', type=str, help='Host to run the API on')
+    parser.add_argument('--port', type=int, help='Port to run the API on')
+    # add argument for device_id
+    parser.add_argument('--device_id', type=str, help='Device ID')
+    # add argument for controller address
+    parser.add_argument('--controller_address', type=str,
+                        help='Controller address')
+
+    # parse the arguments
+    args = parser.parse_args()
     # get the device_dict and sensor_dict
 
     # random_number = random.randint(0, 100)
