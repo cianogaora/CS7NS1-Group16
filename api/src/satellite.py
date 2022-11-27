@@ -20,6 +20,8 @@ class Device:
         self.speed = sensor.Speed()
         self.eccentricity = sensor.Eccentricity()
         self.temperature = sensor.Temperature()
+        self.signal = sensor.Signal()
+        self.microwave = sensor.Microwave()
         self.router = APIRouter()
         self.id = pub_id
         self.port = port
@@ -36,6 +38,10 @@ class Device:
                 return self.eccentricity
             elif sensor_id == 'Temperature':
                 return self.temperature
+            elif sensor_id == 'Signal':
+                return self.signal
+            elif sensor_id == 'Microwave':
+                return self.microwave
 
     def join_network(self, controller_addr, dev_addr, device_id, sensor_id):
         print(f"registering device {device_id} on {controller_addr}")

@@ -277,29 +277,53 @@ class Signal:
         print(self.sig)
         return self.sig
 
+class Microwave:
+    def __init__(self):
+        self.sensor_name="Microwave"
+        self.microwave_radiation=random.randint(300,300000)
+    def change_microwave(self):
+        microave_change = random.randint(-10,10)
+        while True:
+            if 300 <= self.microwave_radiation + microave_change <=300000:
+                self.microwave_radiation = self.microwave_radiation + microave_change
+            elif self.microwave_radiation + microave_change < 300:
+                self.microwave_radiation += 10
+            elif self.microwave_radiation + microave_change > 300000:
+                self.microwave_radiation -= 10
+            time.sleep(5)
+    def generate_microwave(self):
+        t1 = threading.Thread(target=self.change_microwave)
+        t1.start()
+    def result_microwave(self):
+        self.mic = {}
+        self.mic.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"microwave radiation": self.microwave_radiation}})
+        print(self.mic)
+        return self.mic
 
 
 
 
-
-if __name__ == '__main__':
-    sensor1 = Location()
-    sensor2 = Angle()
-    sensor3 = Speed()
-    sensor4 = Altitude()
-    sensor6 = Signal()
-    sensor2.generate_angle()
-    sensor5 = Eccentricity()
-    sensor5.generate_eccentricity()
-    sensor6.generate_signal()
-    while True:
-        # sensor1.generate_location()
-        # sensor1.result_location()
-
-        # sensor2.result_anlge()
-        # sensor3.generate_speed()
-        # sensor3.result_speed()
-        # sensor4.generate_altitude()
-        # sensor4.result_altitude()
-        sensor6.result_signal()
-        time.sleep(5)
+# if __name__ == '__main__':
+#     # sensor1 = Location()
+#     # sensor2 = Angle()
+#     # sensor3 = Speed()
+#     # sensor4 = Altitude()
+#     # sensor6 = Signal()
+#     # sensor2.generate_angle()
+#     # sensor5 = Eccentricity()
+#     # sensor5.generate_eccentricity()
+#     # sensor6.generate_signal()
+#     # sensor7 = Microwave()
+#     # sensor7.generate_microwave()
+#     # while True:
+#     #     # sensor1.generate_location()
+#     #     # sensor1.result_location()
+#     #
+#     #     # sensor2.result_anlge()
+#     #     # sensor3.generate_speed()
+#     #     # sensor3.result_speed()
+#     #     # sensor4.generate_altitude()
+#     #     # sensor4.result_altitude()
+#     #     # sensor6.result_signal()
+#     #     sensor7.result_microwave()
+#     #     time.sleep(5)
