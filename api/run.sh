@@ -1,5 +1,5 @@
 # star dummy sensor
-python3 src/dummy_sensor.py  &
+#python3 src/dummy_sensor.py  &
 
 python3 src/controller.py  --host localhost --port 8004 &
 # wait a few seconds for controller to start
