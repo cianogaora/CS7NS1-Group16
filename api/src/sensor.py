@@ -22,6 +22,7 @@ class Location:
         self.latitude = (random.uniform(-180, 180))
         self.latitude = float(format(self.latitude, ".4f"))
         self.final_loc = {}
+
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
@@ -45,7 +46,8 @@ class Location:
                 self.latitude -= 1
             elif self.latitude + latitude_change < -180:
                 self.latitude += 1
-            self.final_loc.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"longitude": self.longitude, "latitude": self.latitude}})
+            self.final_loc.update({time.strftime(
+                "%Y-%m-%d %H:%M:%S"): {"longitude": self.longitude, "latitude": self.latitude}})
             time.sleep(5)
 
     def generate_location(self):
@@ -57,7 +59,7 @@ class Location:
         # print(self.longitude)
         # print(self.latitude)
         self.loc = {}
-        self.loc.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"longitude": self.longitude, "latitude": self.latitude}})
+        self.loc.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"longitude": self.longitude, "latitude": self.latitude}})
         print(self.loc)
         return self.loc
 
@@ -65,7 +67,7 @@ class Location:
 class Altitude():
 
     def __init__(self):
-        self.alt = None
+        # self.alt = None
         self.sensor_name = 'Altitude'
         # super().__init__(sensor_name)
         self.altitude = (random.randint(300000, 500000))
@@ -91,14 +93,15 @@ class Altitude():
 
     def result_altitude(self):
         self.alt_ = {}
-        self.alt_.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"altitude": self.altitude}})
+        self.alt_.update({time.strftime("%Y-%m-%d %H:%M:%S")                         : {"altitude": self.altitude}})
         # print(self.alt)
         return self.alt
+
 
 class Angle():
 
     def __init__(self):
-        self.ang = None
+        # self.ang = None
         self.sensor_name = 'Angle'
         self.height_angle = (random.uniform(60, 90))
         self.height_angle = float(format(self.height_angle, '.2f'))
@@ -129,14 +132,15 @@ class Angle():
     def result_anlge(self):
         time.sleep(1)
         self.ang = {}
-        self.ang.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"height angle": self.height_angle}})
+        self.ang.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"height angle": self.height_angle}})
         # print(self.ang)
         return self.ang
+
 
 class Speed():
 
     def __init__(self):
-        self.spd = None
+        # self.spd = None
         self.sensor_name = 'Speed'
         self.speed = (random.uniform(6000, 8000))
         self.speed = float(format(self.speed, '.3f'))
@@ -166,18 +170,20 @@ class Speed():
 
     def result_speed(self):
         self.spd = {}
-        self.spd.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"speed": self.speed}})
+        self.spd.update(
+            {time.strftime("%Y-%m-%d %H:%M:%S"): {"speed": self.speed}})
         # print(self.spd)
         return self.spd
+
 
 class Eccentricity:
 
     def __init__(self):
-        self.decimal = None
-        self.ecce = None
+        # self.decimal = None
+        # self.ecce = None
         self.sensor_name = 'Eccentricity'
-        self.eccentricity = (random.uniform(0,1))
-        self.eccentricity = float(format(self.eccentricity,'.2f'))
+        self.eccentricity = (random.uniform(0, 1))
+        self.eccentricity = float(format(self.eccentricity, '.2f'))
         # self.final_ecc = {}
 
     def generate_decimal(self, min, max, numbers):
@@ -186,10 +192,10 @@ class Eccentricity:
         return self.decimal
 
     def change_eccentricity(self):
-        eccentricity_change = self.generate_decimal(-1,1,2)
+        eccentricity_change = self.generate_decimal(-1, 1, 2)
         while True:
             if 0 <= self.eccentricity + eccentricity_change <= 1:
-                self.eccentricity = self.eccentricity +eccentricity_change
+                self.eccentricity = self.eccentricity + eccentricity_change
             elif self.eccentricity + eccentricity_change > 1:
                 self.eccentricity -= 0.2
             elif self.eccentricity + eccentricity_change < 0:
@@ -203,18 +209,19 @@ class Eccentricity:
 
     def result_eccentricity(self):
         self.ecce = {}
-        self.ecce.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"Orbital eccentricity":self.eccentricity}})
+        self.ecce.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"Orbital eccentricity": self.eccentricity}})
         # print(self.ecce)
         return self.ecce
+
 
 class Temperature:
 
     def __init__(self):
-        self.temp = None
-        self.decimal = None
+        # self.temp = None
+        # self.decimal = None
         self.sensor_name = 'temperature'
-        self.temperature = (random.uniform(-100,100))
-        self.temperature = float(format(self.temperature,'.2f'))
+        self.temperature = (random.uniform(-100, 100))
+        self.temperature = float(format(self.temperature, '.2f'))
         # self.final_temp = {}
 
     def generate_decimal(self, min, max, numbers):
@@ -223,7 +230,7 @@ class Temperature:
         return self.decimal
 
     def change_temperature(self):
-        temperature_change = self.generate_decimal(-5,5,2)
+        temperature_change = self.generate_decimal(-5, 5, 2)
         while True:
             if -100 <= temperature_change + self.temperature <= 100:
                 self.temperature = self.temperature + temperature_change
@@ -240,16 +247,17 @@ class Temperature:
 
     def result_temperature(self):
         self.temp = {}
-        self.temp.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"temperature":self.temperature}})
+        self.temp.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"temperature": self.temperature}})
         return self.temp
+
 
 class Signal:
     def __init__(self):
-        self.decimal = None
-        self.sig = None
+        # self.decimal = None
+        # self.sig = None
         self.sensor_name = 'Singal'
-        self.signal_strength = (random.uniform(-114.58,-102.27))
-        self.signal_strength = float(format(self.signal_strength,'.2f'))
+        self.signal_strength = (random.uniform(-114.58, -102.27))
+        self.signal_strength = float(format(self.signal_strength, '.2f'))
 
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
@@ -257,7 +265,7 @@ class Signal:
         return self.decimal
 
     def change_singal(self):
-        signal_change = self.generate_decimal(-3,3,2)
+        signal_change = self.generate_decimal(-3, 3, 2)
         while True:
             if -114.58 <= self.signal_strength + signal_change <= -102.27:
                 self.signal_strength = self.signal_strength + signal_change
@@ -273,34 +281,36 @@ class Signal:
 
     def result_signal(self):
         self.sig = {}
-        self.sig.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"signal_strength": self.signal_strength}})
+        self.sig.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"signal_strength": self.signal_strength}})
         print(self.sig)
         return self.sig
 
+
 class Microwave:
     def __init__(self):
-        self.sensor_name="Microwave"
-        self.microwave_radiation=random.randint(300,300000)
+        self.sensor_name = "Microwave"
+        self.microwave_radiation = random.randint(300, 300000)
+
     def change_microwave(self):
-        microave_change = random.randint(-10,10)
+        microave_change = random.randint(-10, 10)
         while True:
-            if 300 <= self.microwave_radiation + microave_change <=300000:
+            if 300 <= self.microwave_radiation + microave_change <= 300000:
                 self.microwave_radiation = self.microwave_radiation + microave_change
             elif self.microwave_radiation + microave_change < 300:
                 self.microwave_radiation += 10
             elif self.microwave_radiation + microave_change > 300000:
                 self.microwave_radiation -= 10
             time.sleep(5)
+
     def generate_microwave(self):
         t1 = threading.Thread(target=self.change_microwave)
         t1.start()
+
     def result_microwave(self):
         self.mic = {}
-        self.mic.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"microwave radiation": self.microwave_radiation}})
+        self.mic.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"microwave radiation": self.microwave_radiation}})
         print(self.mic)
         return self.mic
-
-
 
 
 # if __name__ == '__main__':
