@@ -35,7 +35,6 @@ class Subscriber:
 def join(sub1):
     time.sleep(5)
     sub1.join_network("http://localhost:8004")
-
     sub1.request_data('0', '0')
 
 if __name__ == "__main__":

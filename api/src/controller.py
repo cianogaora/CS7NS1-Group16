@@ -1,7 +1,5 @@
-from fastapi import FastAPI, APIRouter, HTTPException, status, Query, Request
+from fastapi import FastAPI, APIRouter, HTTPException, status, Request
 import requests
-from pydantic import BaseModel
-from typing import List, Union
 import uvicorn
 # import threading
 from threading import Thread
@@ -13,8 +11,7 @@ import logging
 # set up logging to info
 logging.basicConfig(level=logging.INFO)
 
-
-from routes.contentrouter import RegisterSubscriber, RegisterDevice, RegisterContentRouter
+from contentrouter import RegisterDevice, RegisterContentRouter
 
 
 class Controller:
