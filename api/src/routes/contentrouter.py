@@ -66,8 +66,8 @@ class ContentRouter:
         # spawn a thread to clean the cs
 
         @self.router.get("/get_data/{device_id}/{sensor_id}")
-        async def get_data(device_id: str, sensor_id: str, request: Request,  port: int = None) -> SensorData:
-
+        async def get_data(device_id: str, sensor_id: str, request: Request,  port: int = None, last: str = None) -> SensorData:
+            last = self.device_id
             print(
                 f"get_data request from device {device_id} for sensor {sensor_id}")
 
@@ -76,62 +76,80 @@ class ContentRouter:
                     data = entry[2]
                     return data
 
+            # get the address of the next content router
+            for entry in self.fib:
+                if device_id == entry[0]:
+                    next = entry[1]
+                    # send the request to the next content router
+                    print(f"Sending request to {next}")
+                    # check if http in next address
+                    if "http" not in next:
+                        next = "http://" + next
+                    r = requests.get(
+                        f"{next}/get_data/{device_id}/{sensor_id}")
+                    # add to cs
+                    self.cs.append(
+                        (device_id, sensor_id, r.json(), time.time()))
+                    return r.json()
+
+            else:
+                raise HTTPException(status_code=404, detail="Device not found")
             # Check/Add to PIT
-            requester = request.client.host
-            print(f"requester: {requester} port {port}")
-            req_in_pit = False
-            for entry in self.pit:
-                if all(x in entry for x in [requester, device_id, sensor_id]):
-                    req_in_pit = True
+            # requester = request.client.host
+            # print(f"requester: {requester} port {port}")
+            # req_in_pit = False
+            # for entry in self.pit:
+            #     if all(x in entry for x in [requester, device_id, sensor_id]):
+            #         req_in_pit = True
 
-            if not req_in_pit:
-                self.pit.append(
-                    (requester, port, device_id, sensor_id, time.time()))
+            # if not req_in_pit:
+            #     self.pit.append(
+            #         (requester, port, device_id, sensor_id, time.time()))
 
-            # Check PIT for unfulfilled requests
-            responses = []
-            for entry in self.pit:
-                print(f"getting data for entry {entry}")
+            # # Check PIT for unfulfilled requests
+            # responses = []
+            # for entry in self.pit:
+            #     print(f"getting data for entry {entry}")
 
-                src = entry[0]
-                entry_port = entry[1]
-                device = entry[2]
-                sensor = int(entry[3])
-                timestamp = entry[4]
-                device_addr = ""
-                for d in self.fib:
-                    if str(d[0]) == str(entry[2]):
-                        device_addr = d[1]
-                if device_addr == "":
-                    print("device not in fib")
-                    return HTTPException(status_code=404, detail="device not in fib")
+            #     src = entry[0]
+            #     entry_port = entry[1]
+            #     device = entry[2]
+            #     sensor = int(entry[3])
+            #     timestamp = entry[4]
+            #     device_addr = ""
+            #     for d in self.fib:
+            #         if str(d[0]) == str(entry[2]):
+            #             device_addr = d[1]
+            #     if device_addr == "":
+            #         print("device not in fib")
+            #         return HTTPException(status_code=404, detail="device not in fib")
 
-                # check if addr contains http
-                if "http" not in device_addr:
-                    device_addr = "http://" + device_addr
+            #     # check if addr contains http
+            #     if "http" not in device_addr:
+            #         device_addr = "http://" + device_addr
 
-                response = requests.get(
-                    f"{device_addr}/get_data/{device}/{sensor}?port={entry_port}")
-                # check if bad response
-                if response.status_code != 200:
-                    print("bad response")
-                    return HTTPException(status_code=404, detail="bad response")
-                print(response.json())
-                print(f"processing entry {entry} in pit")
-                responses.append((src, entry_port, response.json()))
+            #     response = requests.get(
+            #         f"{device_addr}/get_data/{device}/{sensor}?port={entry_port}&last={last}")
+            #     # check if bad response
+            #     if response.status_code != 200:
+            #         print("bad response")
+            #         return HTTPException(status_code=404, detail="bad response")
+            #     print(response.json())
+            #     print(f"processing entry {entry} in pit")
+            #     responses.append((src, entry_port, response.json()))
 
-            for r in responses:
-                addr = r[0]
-                if r[0] == "::1":
-                    addr = "localhost"
-                print(f"sending response {r[2]} to {addr}")
-                data = SensorData(**r[2])
+            # for r in responses:
+            #     addr = r[0]
+            #     if r[0] == "::1":
+            #         addr = "localhost"
+            #     print(f"sending response {r[2]} to {addr}")
+            #     data = SensorData(**r[2])
 
-                print(data)
-                requests.post(
-                    url=f'http://{addr}:{r[1]}/response', data=data.json())
+            #     print(data)
+            #     requests.post(
+            #         url=f'http://{addr}:{r[1]}/response', data=data.json())
 
-            return {"response": "request sent"}
+            # return {"response": "request sent"}
 
         @self.router.post("/update/before")
         def update_before(data: UpdateBefore) -> None:
