@@ -6,7 +6,6 @@ import requests
 import fastapi
 import uvicorn
 from fastapi import APIRouter
-from routes.contentrouter import RequestData, SensorData
 
 
 class Subscriber:
@@ -28,14 +27,21 @@ class Subscriber:
         print(f"subscriber {self.id} assigned to content router {self.assigned_cr}")
 
     def request_data(self, device_id, sensor_id):
-        r = requests.get(f'http://{self.assigned_cr}/get_data/{device_id}/{sensor_id}?port={self.port}')
+        r = requests.get(f'http://{self.assigned_cr}/get_data/{device_id}/{sensor_id}')
         print(f"subscriber received data {r.content}")
 
 
 def join(sub1):
     time.sleep(5)
     sub1.join_network("http://localhost:8004")
-    sub1.request_data('0', '0')
+    time.sleep(5)
+    sub1.request_data('0', 'Location')
+    time.sleep(2)
+    sub1.request_data('0', 'Altitude')
+    time.sleep(2)
+    sub1.request_data('0', 'Speed')
+    time.sleep(2)
+    sub1.request_data('0', 'Eccentricity')
 
 if __name__ == "__main__":
     # define the parser
@@ -48,15 +54,16 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=8005)
 
     sub = Subscriber(parser.parse_args().sub_id, parser.parse_args().port)
-    app = fastapi.FastAPI()
-    app.include_router(sub.router)
+    # app = fastapi.FastAPI()
+    # app.include_router(sub.router)
 
     print("registering subscriber")
-    thread = threading.Thread(target=join, args=(sub,))
-    thread.start()
-    try:
-        uvicorn.run(app, host=parser.parse_args().host,
-                    port=parser.parse_args().port)
-    except KeyboardInterrupt:
-        print("Keyboard interrupt")
-        exit(0)
+    join(sub)
+    # thread = threading.Thread(target=join, args=(sub,))
+    # thread.start()
+    # try:
+    #     uvicorn.run(app, host=parser.parse_args().host,
+    #                 port=parser.parse_args().port)
+    # except KeyboardInterrupt:
+    #     print("Keyboard interrupt")
+    #     exit(0)
