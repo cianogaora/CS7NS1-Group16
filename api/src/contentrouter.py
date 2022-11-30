@@ -12,6 +12,8 @@ import time
 import os
 from typing import List, Union
 
+# Christopher + Cian: Data Model Definitions using pydantic to have type checking
+
 
 class RegisterDevice(BaseModel):
     device_id: str
@@ -68,7 +70,7 @@ class ContentRouter:
         self.start()
 
         # spawn a thread to clean the cs
-
+        # Cian + Christopher: Content Router data gettting function
         @self.router.get("/get_data/{device_id}/{sensor_id}")
         async def get_data(device_id: str, sensor_id: str, request: Request,  port: int = None, last: str = None) -> SensorData:
             last = self.device_id
@@ -81,7 +83,7 @@ class ContentRouter:
                     data = entry[2]
                     return data
 
-            # get the address of the next content router
+            # Christopher: get the address of the next content router by looking up the fib
             for entry in self.fib:
                 if device_id == entry[0]:
                     next = entry[1]
@@ -99,6 +101,8 @@ class ContentRouter:
 
             else:
                 raise HTTPException(status_code=404, detail="Device not found")
+
+            # Christoper + Cian : we tried to implement the pit but we couldn't get it to work
             # Check/Add to PIT
             # requester = request.client.host
             # print(f"requester: {requester} port {port}")
@@ -155,9 +159,20 @@ class ContentRouter:
             #         url=f'http://{addr}:{r[1]}/response', data=data.json())
 
             # return {"response": "request sent"}
+        # Christopher: add a route to update the next and before content
 
         @self.router.post("/update/before")
-        def update_before(data: UpdateBefore) -> None:
+        def update_before(data: UpdateBefore) -> dict:
+            """
+            Update the before content router
+            Parameters
+            ----------
+            data : UpdateBefore
+                The data to update the before content router
+            Returns
+            -------
+            dict
+                """
             print("update before")
             # add to before
             self.before.append(data.device_address)
@@ -165,9 +180,20 @@ class ContentRouter:
             print(f"before: {self.before}")
             #
             return {"status": "success"}
+        # Christopher: add a route to update the Fib when a new device is registered
 
         @self.router.post("/update/fib")
-        def update_fib(data: UpdateData) -> None:
+        def update_fib(data: UpdateData) -> dict:
+            """
+            Update the fib
+            Parameters
+            ----------
+            data : UpdateData
+                The data to update the fib
+            Returns
+            -------
+            dict
+            """
             # check if device is in fib
             for entry in self.fib:
                 if entry[0] == data.device_id:
@@ -195,6 +221,8 @@ class ContentRouter:
             # return success
             return {"status": "success"}
 
+        # Christopher: this is a proxy route to send a request to register a new contentrouter to the controller
+
         @self.router.post("/register/content_router")
         def register_content_router(registration_dict: RegisterContentRouter) -> None:
             # proxied request forwards the request to the controller node
@@ -202,6 +230,7 @@ class ContentRouter:
             r = requests.post(f"http://{self.controller_address}/register/content_router",
                               json=registration_dict)
             return {"status": "success"}
+        # Christopher: this is a proxy route to send a request to register a new device to the controller
 
         @self.router.post("/register/device")
         def register_device(data: RegisterDevice) -> None:
@@ -212,9 +241,7 @@ class ContentRouter:
             print(r.content)
             return {"status": "success"}
 
-    def join_network(self, controller_addr):
-        r = requests.post(controller_addr, params={"type": "join"})
-        print(r.json())
+    # Christopher + Cian: this cleans the content store periodically
 
     def clean_cs(self):
         while True:
@@ -228,6 +255,7 @@ class ContentRouter:
                 except IndexError:
                     pass
             time.sleep(5)
+    # Christopher: this is the main function  to save variables to files
 
     def save_to_file(self):
         while True:
@@ -249,6 +277,7 @@ class ContentRouter:
                 f.write(str(self.next))
 
             time.sleep(5)
+    # Christopher: this is the main function to load variables from files at startup
 
     def load_from_file(self):
         # check if file exists
@@ -294,6 +323,7 @@ class ContentRouter:
             print("Creating new before")
             # register content router
             self.register_content_router()
+    # Christopher: this is the main function to start up the Threads needed for the content router
 
     def start(self):
         t = Thread(target=self.clean_cs)
@@ -303,6 +333,7 @@ class ContentRouter:
         t_2.start()
 
         print("starting content router")
+    # Christopher: this registers the content router with the controller
 
     def register_content_router(self):
         # register the content router with the controller
@@ -338,8 +369,9 @@ class ContentRouter:
                         url, json={"device_address": self.address})
 
 
-
 if __name__ == "__main__":
+
+    # Christopher + Cian : this is the main to start everything up with arguments
     app = fastapi.FastAPI()
 
     parser = argparse.ArgumentParser(description='Run the API')
