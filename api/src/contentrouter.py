@@ -75,6 +75,7 @@ class ContentRouter:
             print(
                 f"get_data request from device {device_id} for sensor {sensor_id}")
 
+            # Cian: check content store for cached content matching request
             for entry in self.cs:
                 if all(x in entry for x in [device_id, sensor_id]):
                     data = entry[2]

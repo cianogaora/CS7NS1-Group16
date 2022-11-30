@@ -6,7 +6,7 @@ from routes.contentrouter import RequestData
 import time
 import threading
 
-
+# Cian: Script used to for testing during implementation of subscriber class
 def join(sub1):
     time.sleep(5)
     sub1.join_network("http://localhost:8004")

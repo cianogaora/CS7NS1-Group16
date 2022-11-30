@@ -39,6 +39,7 @@ class Controller:
             try:
                 content_router = min(self.content_router_dict, key=lambda x: len(
                     self.content_router_dict[x]["devices"]))
+                #Cian: Handle error when no devices present in routers
             except ValueError:
                 content_router = self.content_router_dict[0]
 
@@ -87,6 +88,7 @@ class Controller:
             # return 200 OK
             return {"message": "Content router registered", "next": next_address}
 
+        #Cian: Assign content router to new subscriber
         @self.router.get("/register/subscriber")
         async def register_sub():
             content_router = min(self.content_router_dict, key=lambda x: len(

@@ -10,15 +10,19 @@ from fastapi import APIRouter
 
 class Subscriber:
     def __init__(self, sub_id, port):
+        # Cian: router and handler no longer used after scrapping pit implementation
         self.router = APIRouter()
         self.id = sub_id
         self.assigned_cr = ''
         self.port = port
 
+    # Cian: Previously used to receive acknowledgement from content router
         @self.router.post("/response")
         async def response(data: dict):
             print(f"subscriber{self.id} received response: {data}")
 
+
+    #Cian: request to controller to join network and recieve a content router address to initiate comms
     def join_network(self, controller_addr):
         print(
             f"registering subscriber {self.id} to controller on {controller_addr}")
@@ -33,7 +37,8 @@ class Subscriber:
             f'http://{self.assigned_cr}/get_data/{device_id}/{sensor_id}')
         print(f"subscriber received data {r.content}")
 
-
+# Cian: Function previously used as thread to simultaneously run uvicorn server and execute registration code simultaneously
+#now used to make example requests
 def join(sub1, addr):
     time.sleep(5)
     # check if http in addr

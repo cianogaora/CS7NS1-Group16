@@ -43,6 +43,7 @@ class Device:
             elif sensor_id == 'Microwave':
                 return self.microwave
 
+    # Cian: Thread function to join network
     def join_network(self, controller_addr, controller_port, dev_addr, device_id, sensor_id):
         print(f"registering satellite {device_id} on {controller_addr}:{controller_port}")
 
@@ -72,7 +73,7 @@ if __name__ == '__main__':
     pub = Device(parser.parse_args().pub_id, parser.parse_args().port)
     app = fastapi.FastAPI()
     app.include_router(pub.router)
-
+    # Cian: Thread used to allow device to request registration and simultaneously listen for requests
     thread = threading.Thread(target=join, args=(pub, parser.parse_args().controller_address, parser.parse_args().controller_port, parser.parse_args().host, parser.parse_args().port,))
     thread.start()
     try:
