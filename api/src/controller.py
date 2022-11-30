@@ -1,3 +1,4 @@
+from contentrouter import RegisterDevice, RegisterContentRouter
 from fastapi import FastAPI, APIRouter, HTTPException, status, Request
 import requests
 import uvicorn
@@ -12,8 +13,6 @@ import logging
 # set up logging to info
 logging.basicConfig(level=logging.INFO)
 
-from contentrouter import RegisterDevice, RegisterContentRouter
-
 
 class Controller:
     def __init__(self) -> None:
@@ -24,10 +23,11 @@ class Controller:
         # start thread to save content router dict
         thread = Thread(target=self.save_content_router_dict)
         thread.start()
+        # Christopher register devices to content router
 
         @self.router.post("/register/device")
         async def register_device(device: RegisterDevice, request: Request) -> None:
-            # check if the device is already in the content router dict
+            # Christopher check if the device is already in the content router dict
             for cs in self.content_router_dict:
                 if device.device_id in self.content_router_dict[cs]["devices"]:
                     raise HTTPException(
@@ -35,15 +35,15 @@ class Controller:
 
             print(self.content_router_dict)
 
-            # get the content router with the least devices in its device list
+            # Christopher + Cian get the content router with the least devices in its device list
             try:
                 content_router = min(self.content_router_dict, key=lambda x: len(
                     self.content_router_dict[x]["devices"]))
-                #Cian: Handle error when no devices present in routers
+                # Cian: Handle error when no devices present in routers
             except ValueError:
                 content_router = self.content_router_dict[0]
 
-            # add the device to the content router
+            # Christopher + Cian add the device to the content router
             self.content_router_dict[content_router]["devices"].append(
                 device.device_id)
 
@@ -51,6 +51,7 @@ class Controller:
 
             # # return 200 OK
             return {"message": "Device registered"}
+        # Christopher register content router with controller from startup
 
         @self.router.post("/register/content_router")
         async def register_content_router(content_router: RegisterContentRouter, request: Request) -> None:
@@ -88,12 +89,13 @@ class Controller:
             # return 200 OK
             return {"message": "Content router registered", "next": next_address}
 
-        #Cian: Assign content router to new subscriber
+        # Cian: Assign content router to new subscriber
         @self.router.get("/register/subscriber")
         async def register_sub():
             content_router = min(self.content_router_dict, key=lambda x: len(
                 self.content_router_dict[x]["devices"]))
             return self.content_router_dict[content_router]["address"]
+    # Christopher + Cian: Broadcast register to all content routers
 
     def brodcast_register(self, content_router, device) -> None:
         # todo send request to content router
@@ -105,11 +107,13 @@ class Controller:
             # check if the content router is in the dict
             if cs == content_router:
                 print("same")
-                print(f"posting request http://{address}/update/fib with data {device.device_address}")
+                print(
+                    f"posting request http://{address}/update/fib with data {device.device_address}")
                 requests.post(
                     f"http://{address}/update/fib", json={"device_id": device.device_id, "next": device.device_address})
 
         return 0
+    # Christopher: Load content router dict from file
 
     def load_content_router_dict(self):
         try:
@@ -118,6 +122,7 @@ class Controller:
                 print(self.content_router_dict)
         except FileNotFoundError:
             self.content_router_dict = {}
+    # Christopher: Save content router dict to file
 
     def save_content_router_dict(self):
         while True:
@@ -129,6 +134,7 @@ class Controller:
 
 
 if __name__ == "__main__":
+    # Christopher + Cian: Parse arguments and start the controller
     # define the parser
     parser = argparse.ArgumentParser(
         description="Controller for the content router")
