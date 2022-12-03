@@ -8,12 +8,12 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-
+# Harshit + Christopher : create classes for meaningful random data generation
 class Sensor:
     def __int__(self, sensor_name) -> None:
         self.sensor_name = sensor_name
 
-
+# class to genrate longitute and latitude data
 class Location:
     def __init__(self):
         self.sensor_name = 'Location'
@@ -28,6 +28,7 @@ class Location:
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+ #Changing the value of latitude and longitude while making sure they lie within their range 
     def change_longitude(self):
 
         longitude_change = self.generate_decimal(-1, 1, 4)
@@ -55,6 +56,7 @@ class Location:
         # print(self.final_loc)
         t1.start()
 
+ #Update the list to add the result       
     def result_location(self):
         # print(self.longitude)
         # print(self.latitude)
@@ -63,7 +65,7 @@ class Location:
         print(self.loc)
         return self.loc
 
-
+#class for altitude data
 class Altitude():
 
     def __init__(self):
@@ -97,7 +99,7 @@ class Altitude():
         # print(self.alt)
         return self.alt
 
-
+#class for angle data of satellite
 class Angle():
 
     def __init__(self):
@@ -136,7 +138,7 @@ class Angle():
         # print(self.ang)
         return self.ang
 
-
+#class to generate data for speed of satellite
 class Speed():
 
     def __init__(self):
@@ -175,7 +177,7 @@ class Speed():
         # print(self.spd)
         return self.spd
 
-
+#Eccentricity refers to how much a conic section varies from being circlar eg. circle has eccentricity of 0
 class Eccentricity:
 
     def __init__(self):
@@ -213,7 +215,7 @@ class Eccentricity:
         # print(self.ecce)
         return self.ecce
 
-
+#class that gives temperature at the surface of the satellite:varies as its distance and face from the sun
 class Temperature:
 
     def __init__(self):
@@ -250,7 +252,7 @@ class Temperature:
         self.temp.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"temperature": self.temperature}})
         return self.temp
 
-
+#class to give the signal strength from the satellite
 class Signal:
     def __init__(self):
         # self.decimal = None
@@ -285,7 +287,7 @@ class Signal:
         print(self.sig)
         return self.sig
 
-
+#class depicting microwave radiation 
 class Microwave:
     def __init__(self):
         self.sensor_name = "Microwave"
