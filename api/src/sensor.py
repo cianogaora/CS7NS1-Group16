@@ -13,8 +13,11 @@ class Sensor:
     def __int__(self, sensor_name) -> None:
         self.sensor_name = sensor_name
 
+# Fangyu: The location contains two kinds of data (longitude and latitude)
 
 class Location:
+    # Fangyu: Latitude and longitude data generation interval
+
     def __init__(self):
         self.sensor_name = 'Location'
         self.longitude = (random.uniform(-90, 90))
@@ -23,11 +26,14 @@ class Location:
         self.latitude = float(format(self.latitude, ".4f"))
         self.final_loc = {}
 
+    # Fangyu: Randomly generate decimals and customize the number of decimal places
+
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_longitude(self):
 
         longitude_change = self.generate_decimal(-1, 1, 4)
@@ -50,10 +56,14 @@ class Location:
                 "%Y-%m-%d %H:%M:%S"): {"longitude": self.longitude, "latitude": self.latitude}})
             time.sleep(5)
 
+    # Fangyu: generate location data
+
     def generate_location(self):
         t1 = threading.Thread(target=self.change_longitude)
         # print(self.final_loc)
         t1.start()
+
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
 
     def result_location(self):
         # print(self.longitude)
@@ -73,6 +83,8 @@ class Altitude():
         self.altitude = (random.randint(300000, 500000))
         # self.final_alt = {}
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
+
     def change_altitude(self):
         number = random.randint(-100, 100)
         while True:
@@ -85,12 +97,14 @@ class Altitude():
             # self.final_alt.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"altitude":self.altitude}})
             time.sleep(5)
 
+    # Fangyu: generate altitude data
     def generate_altitude(self):
         t1 = threading.Thread(target=self.change_altitude)
         # t1.setDaemon(True)
         # print(self.final_alt)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_altitude(self):
         self.alt_ = {}
         self.alt_.update({time.strftime("%Y-%m-%d %H:%M:%S")                         : {"altitude": self.altitude}})
@@ -107,11 +121,13 @@ class Angle():
         self.height_angle = float(format(self.height_angle, '.2f'))
         # self.final_ang = {}
 
+    # Fangyu: Randomly generate decimals and customize the number of decimal places
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_angle(self):
         angle_change = self.generate_decimal(-1, 1, 2)
         while True:
@@ -124,11 +140,13 @@ class Angle():
             # self.final_ang.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"height angle":self.height_angle}})
             time.sleep(5)
 
+    # Fangyu: Generate angle data
     def generate_angle(self):
         t1 = threading.Thread(target=self.change_angle)
         # print(self.final_ang)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_anlge(self):
         time.sleep(1)
         self.ang = {}
@@ -146,11 +164,13 @@ class Speed():
         self.speed = float(format(self.speed, '.3f'))
         # self.final_spd = {}
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_speed(self):
         speed_change = self.generate_decimal(-1, 1, 3)
         while True:
@@ -163,11 +183,13 @@ class Speed():
             # self.final_spd.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"speed":self.speed}})
             time.sleep(5)
 
+    # Fangyu: Generate speed data
     def generate_speed(self):
         t1 = threading.Thread(target=self.change_speed)
         # print(self.final_spd)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_speed(self):
         self.spd = {}
         self.spd.update(
@@ -186,11 +208,13 @@ class Eccentricity:
         self.eccentricity = float(format(self.eccentricity, '.2f'))
         # self.final_ecc = {}
 
+    # Fangyu: Randomly generate decimals and customize the number of decimal places
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_eccentricity(self):
         eccentricity_change = self.generate_decimal(-1, 1, 2)
         while True:
@@ -203,10 +227,12 @@ class Eccentricity:
             # self.final_ecc.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"Orbital eccentricity":self.eccentricity}})
             time.sleep(5)
 
+    # Fangyu: Generate eccentricity data
     def generate_eccentricity(self):
         t1 = threading.Thread(target=self.change_eccentricity)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_eccentricity(self):
         self.ecce = {}
         self.ecce.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"Orbital eccentricity": self.eccentricity}})
@@ -224,11 +250,13 @@ class Temperature:
         self.temperature = float(format(self.temperature, '.2f'))
         # self.final_temp = {}
 
+    # Fangyu: Randomly generate decimals and customize the number of decimal places
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_temperature(self):
         temperature_change = self.generate_decimal(-5, 5, 2)
         while True:
@@ -241,10 +269,12 @@ class Temperature:
             # self.final_temp.update({time.strftime("%Y-%m-%d %H:%M:%S"):{"temperature":self.temperature}})
             time.sleep(5)
 
+    # Fangyu: Generate temperature data
     def generate_temperature(self):
         t1 = threading.Thread(target=self.change_temperature)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_temperature(self):
         self.temp = {}
         self.temp.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"temperature": self.temperature}})
@@ -259,11 +289,13 @@ class Signal:
         self.signal_strength = (random.uniform(-114.58, -102.27))
         self.signal_strength = float(format(self.signal_strength, '.2f'))
 
+    # Fangyu: Randomly generate decimals and customize the number of decimal places
     def generate_decimal(self, min, max, numbers):
         self.decimal = (random.uniform(min, max))
         self.decimal = float(format(self.decimal, '.%df' % (numbers)))
         return self.decimal
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_singal(self):
         signal_change = self.generate_decimal(-3, 3, 2)
         while True:
@@ -275,13 +307,15 @@ class Signal:
                 self.signal_strength -= 3
             time.sleep(5)
 
+    # Fangyu: Generate signal strength data
     def generate_signal(self):
         t1 = threading.Thread(target=self.change_singal)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_signal(self):
         self.sig = {}
-        self.sig.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"signal_strength": self.signal_strength}})
+        self.sig.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"signal_strength": self.signal_strength}})
         print(self.sig)
         return self.sig
 
@@ -291,6 +325,7 @@ class Microwave:
         self.sensor_name = "Microwave"
         self.microwave_radiation = random.randint(300, 300000)
 
+    # Fangyu: Define the data change interval and ensure that the data does not exceed this interval after the change
     def change_microwave(self):
         microave_change = random.randint(-10, 10)
         while True:
@@ -302,13 +337,15 @@ class Microwave:
                 self.microwave_radiation -= 10
             time.sleep(5)
 
+    # Fangyu: Generate microwave data
     def generate_microwave(self):
         t1 = threading.Thread(target=self.change_microwave)
         t1.start()
 
+    # Fangyu: Return the data in the form of a dictionary with timestamp as the key value
     def result_microwave(self):
         self.mic = {}
-        self.mic.update({time.strftime("%Y-%m-%d %H:%M:%S")                        : {"microwave radiation": self.microwave_radiation}})
+        self.mic.update({time.strftime("%Y-%m-%d %H:%M:%S"): {"microwave radiation": self.microwave_radiation}})
         print(self.mic)
         return self.mic
 
